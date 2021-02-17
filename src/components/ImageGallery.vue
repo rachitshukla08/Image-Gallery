@@ -4,7 +4,7 @@
             <div class="imageList col-md-auto" v-for="image in images" :key="image.id">
                 <div class="gallery">
                     <img @click="redirectToPage(image.download_url)" :src="image.download_url" width="200" height="200" :alt="image.url" >
-                    <p class="author" @click="redirectToPage(image.download_url)">{{image.author}}</p>
+                    <p class="author" @click="redirectToPage(image.url)">{{image.author}}</p>
                 </div>
             </div>
         </div>
@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import {getData} from '../services/GetDataService'
 
 export default {
     name: 'ImageGallery',
@@ -31,28 +31,24 @@ export default {
     return {
       images: [],
       urlTemplate:'https://picsum.photos/v2/list?page=',
+      limit: '&limit=30', 
       page: 1,
     };
   },
   created() {
-    this.getData();
+    this.getImages();
   },
   updated(){
-    this.getData();
-    console.log("Updated")
+    this.getImages();
   },
   methods: {
-      getData(){
-        axios.get(this.urlTemplate+this.page)
-          .then((response)=>{
-            console.log(response)
-            let responseData = response.data;
-            this.images = responseData;
+      getImages(){
+            const response = getData(this.page,this.limit);
+            response.then(result=>this.images = result.data)
             console.log(this.images)
-          });
       },
       redirectToPage(imageUrl){
-          window.location.replace(imageUrl)
+          window.open(imageUrl)
       },
       incrementPage(){
         if(this.page<34)
